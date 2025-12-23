@@ -1,9 +1,6 @@
 package org.codecomrades;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class CrudManager {
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
@@ -12,12 +9,13 @@ public class CrudManager {
         String url = "jdbc:mysql://localhost:3306/testdb";
         String user = "root";
         String password = "root1234";
-        Connection con = DriverManager.getConnection(url,user,password);
-        Statement st =  con.createStatement();
+        Connection con = DriverManager.getConnection(url, user, password);
+        Statement st = con.createStatement();
         String sql = "insert into student values(1,'som',6371326)";
         boolean bl = st.execute(sql);
         System.out.println(bl);
-
-        }
+        ResultSet rs = st.getResultSet();
+       
     }
+}
 
