@@ -78,7 +78,7 @@ static {
                         PreparedStatement prn = con.prepareStatement("update emp_data set name = ? where id = ?");
                             prn.setString(1,uname);
                             prn.setInt(2,rs.getInt("id"));
-                        System.out.println(rs.getInt("id"));
+                        //System.out.println(rs.getInt("id"));
                             int urows = prn.executeUpdate();
                             if (urows>0){
                                 System.out.println("Your Name Updated to "+ uname);
@@ -86,6 +86,19 @@ static {
                             break;
                     case 2 :
                         System.out.println("Enter the Address You want to Update");
+                        sc.nextLine();
+                        e.setAdress(sc.nextLine());
+                        PreparedStatement pra = con.prepareStatement("update emp_data set adress = ? where id =?");
+                        pra.setString(1,e.getAdress());
+                        pra.setInt(2,rs.getInt("id"));
+                        int radr = pra.executeUpdate();
+                        if(radr>0){
+                            System.out.println("Adress Updated Successfully to" + e.getAdress());
+                        }else{
+                            System.out.println("Issue to Update Address");
+                        }
+                        break;
+
                 }
             }
         } catch (SQLException ex) {
