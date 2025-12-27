@@ -25,11 +25,7 @@ static {
 
     @Override
     public boolean register()  {
-        System.out.println("Enter the Employee Id");
-        e.setId(sc.nextInt());
-        sc.nextLine();
         System.out.println("Enter the Employee Name");
-
         e.setName(sc.nextLine());
         System.out.println("Enter the Employee Salary");
         e.setSalary(sc.nextDouble());
@@ -40,13 +36,14 @@ static {
         PreparedStatement pr = null;
         try {
             pr = con.prepareStatement("insert into emp_data values(?,?,?,?)");
-            pr.setInt(1,e.getId());
+            int id = getnewId();
+            pr.setInt(1,id);
             pr.setString(2,e.getName());
             pr.setDouble(3,e.getSalary());
             pr.setString(4,e.getAdress());
             int rows = pr.executeUpdate();
             if (rows>0){
-                System.out.println("Employee Registered Successfully ✅");
+                System.out.println("Employee Registered Successfully ✅ with id "+ id);
                 return true;
             }
             return false;
@@ -100,18 +97,50 @@ static {
                         break;
 
                 }
+            }else{
+                System.out.println("Details not Available for id : -  "+e.getId());
             }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
         System.out.println();
-
-
         return false;
     }
 
     @Override
     public boolean deleteEmp() {
+        System.out.println("Enter the id You want to Update");
+        e.setId(sc.nextInt());
+        String sql = "delete from emp_data where id = ?";
+        try {
+            PreparedStatement pr = con.prepareStatement(sql);
+            pr.setInt(1,e.getId());
+            int row = pr.executeUpdate();
+            if(row>0){
+                System.out.println("Your Account Has been Deleted Successfully");
+            }else{
+                System.out.println("Account is Not Available for Delete Operation");
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+
         return false;
+    }
+
+    @Override
+    public int getnewId() {
+    String sql = "select * from emp_data";
+    int id = 0;
+        try {
+            ResultSet rs = con.prepareStatement(sql).executeQuery();
+            while(rs.next()){
+                id = rs.getInt(1);
+            }
+            return id+1;
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+
     }
 }
