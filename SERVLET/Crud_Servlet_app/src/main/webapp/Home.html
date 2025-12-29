@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Management System</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+<!-- 🔷 NAVBAR -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-green-600">EMS</h1>
+
+        <nav class="hidden md:flex space-x-8 font-medium">
+            <a href="#" class="hover:text-green-600">Home</a>
+            <a href="#" class="hover:text-green-600">Employees</a>
+            <a href="#" class="hover:text-green-600">Departments</a>
+            <a href="#" class="hover:text-green-600">Reports</a>
+        </nav>
+
+        <a href="login.html"
+           class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition">
+            Login
+        </a>
+    </div>
+</header>
+
+<!-- 🔷 HERO SECTION -->
+<section class="bg-white">
+    <div class="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
+
+        <!-- Text -->
+        <div>
+            <h2 class="text-4xl font-extrabold leading-tight mb-6">
+                Smart Employee <br>
+                <span class="text-green-600">Management System</span>
+            </h2>
+            <p class="text-gray-600 mb-8">
+                Manage employees, departments, attendance, payroll, and performance
+                using a secure and efficient platform.
+            </p>
+
+            <div class="flex gap-4">
+                <a href="signup.html"
+                   class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
+                    Get Started
+                </a>
+                <a href="#features"
+                   class="border border-gray-300 px-6 py-3 rounded-lg hover:border-green-600 hover:text-green-600 transition">
+                    Learn More
+                </a>
+            </div>
+        </div>
+
+        <!-- Image -->
+        <div>
+            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d"
+                 alt="Office Team"
+                 class="rounded-2xl shadow-lg">
+        </div>
+
+    </div>
+</section>
+
+<!-- 🔷 FEATURES -->
+<section id="features" class="bg-gray-100 py-20">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <h3 class="text-3xl font-bold text-center mb-12">
+            Powerful EMS Features
+        </h3>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+            <!-- Card 1 -->
+            <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                     class="w-14 mb-4" />
+                <h4 class="font-semibold text-lg mb-2">Employee Records</h4>
+                <p class="text-gray-600 text-sm">
+                    Maintain and manage employee profiles securely.
+                </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                <img src="https://cdn-icons-png.flaticon.com/512/942/942748.png"
+                     class="w-14 mb-4" />
+                <h4 class="font-semibold text-lg mb-2">Leave Management</h4>
+                <p class="text-gray-600 text-sm">
+                    Apply, approve, and track employee leaves easily.
+                </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                <img src="https://cdn-icons-png.flaticon.com/512/2920/2920277.png"
+                     class="w-14 mb-4" />
+                <h4 class="font-semibold text-lg mb-2">Payroll System</h4>
+                <p class="text-gray-600 text-sm">
+                    Automate salary calculation and payslip generation.
+                </p>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png"
+                     class="w-14 mb-4" />
+                <h4 class="font-semibold text-lg mb-2">Reports & Analytics</h4>
+                <p class="text-gray-600 text-sm">
+                    Visual insights for performance and HR decisions.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- 🔷 CTA -->
+<section class="bg-green-600 text-white py-16">
+    <div class="max-w-4xl mx-auto text-center px-6">
+        <h3 class="text-3xl font-bold mb-4">
+            Build a Smarter Workplace
+        </h3>
+        <p class="mb-8">
+            Start managing your workforce efficiently with EMS.
+        </p>
+        <a href="signup.html"
+           class="bg-white text-green-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+            Create Account
+        </a>
+    </div>
+</section>
+
+<!-- 🔷 FOOTER -->
+<footer class="bg-gray-900 text-gray-400 py-6">
+    <div class="max-w-7xl mx-auto px-6 text-center text-sm">
+        © 2025 Employee Management System | Designed by <span class="text-white">Som</span>
+    </div>
+</footer>
+
+</body>
+</html>
