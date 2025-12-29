@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EMS Login</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="min-h-screen flex">
+
+    <!-- LEFT IMAGE -->
+    <div class="hidden lg:block lg:w-1/2 bg-cover bg-center"
+         style="background-image: url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d');">
+    </div>
+
+    <!-- RIGHT FORM -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center bg-white">
+        <div class="w-full max-w-md p-8">
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-1">Employee Login</h2>
+            <p class="text-gray-500 mb-6">Welcome back, please login</p>
+
+            <form class="space-y-4" action="login" method="post">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600">Email</label>
+                    <input type="text" name="empid"
+                           class="w-full mt-1 px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-600">Password</label>
+                    <input type="password" name="password"
+                           class="w-full mt-1 px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none">
+                </div>
+
+                <button
+                        class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">
+                    Login
+                </button>
+            </form>
+
+            <p class="text-sm text-center text-gray-500 mt-4">
+                Don’t have an account?
+                <a href="signup.html" class="text-green-600 font-medium">Sign up</a>
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
