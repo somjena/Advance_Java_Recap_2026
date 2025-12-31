@@ -1,160 +1,188 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="jakarta.servlet.http.HttpSession" %>
+<%@ page import="util.DButil" %>
+
 <%
-    HttpSession s = request.getSession(false);
+/* ================= SESSION CHECK ================= */
+HttpSession s = request.getSession(false);
+if (s == null || s.getAttribute("empid") == null) {
+    response.sendRedirect("login.html");
+    return;
+}
 
-    if (s == null || s.getAttribute("empid") == null) {
-        response.sendRedirect("login.html");
-        return;
+String empid = s.getAttribute("empid").toString();
+String empname = s.getAttribute("empname").toString();
+
+/* ================= TIME FETCH (DB IS SOURCE OF TRUTH) ================= */
+boolean alreadyCheckedIn = false;
+boolean dayCompleted = false;
+long elapsedSeconds = 0;
+
+try (Connection con = DButil.getConnection()) {
+
+    String sql =
+        "SELECT check_in, check_out, worked_seconds " +
+        "FROM attendance WHERE emp_id=? AND work_date=CURDATE()";
+
+    PreparedStatement ps = con.prepareStatement(sql);
+    ps.setString(1, empid);
+    ResultSet rs = ps.executeQuery();
+
+    if (rs.next()) {
+        Timestamp checkIn = rs.getTimestamp("check_in");
+        Timestamp checkOut = rs.getTimestamp("check_out");
+        long worked = Math.max(0, rs.getLong("worked_seconds"));
+
+        long nowSec = System.currentTimeMillis() / 1000;
+
+        // 🔥 Currently Checked-In
+        if (checkIn != null && checkOut == null) {
+            alreadyCheckedIn = true;
+            long checkInSec = checkIn.getTime() / 1000;
+            long running = Math.max(0, nowSec - checkInSec);
+            elapsedSeconds = worked + running;
+        }
+
+        // 🔒 Day Completed
+        if (checkIn != null && checkOut != null) {
+            dayCompleted = true;
+            elapsedSeconds = worked;
+        }
     }
-
-    String empid = String.valueOf(s.getAttribute("empid"));
-    String empname = s.getAttribute("empname") != null
-            ? s.getAttribute("empname").toString()
-            : "Teaching Associate";
+}
 %>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Employee Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
 
-<!-- ================= NAVBAR ================= -->
-<header class="bg-white shadow-sm">
+<!-- ================= HEADER ================= -->
+<header class="bg-white shadow">
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-        <!-- Logo -->
         <h1 class="text-2xl font-bold text-green-600">EMS</h1>
 
-        <!-- Profile Area -->
-        <div class="relative flex items-center gap-2 cursor-pointer"
-             onclick="toggleMenu()">
+        <div class="flex items-center gap-4">
 
-            <!-- Avatar -->
-            <div class="w-10 h-10 rounded-full border-2 border-green-600
-                        flex items-center justify-center hover:bg-green-50 transition">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                     class="w-6 h-6" alt="Profile">
+            <!-- CHECK IN / CHECK OUT -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleCheck()"
+                        <%= dayCompleted ? "disabled" : "" %>
+                        class="px-4 py-1.5 text-xs rounded-md text-white
+                        <%= dayCompleted ? "bg-gray-400 cursor-not-allowed" :
+                            alreadyCheckedIn ? "bg-red-600 hover:bg-red-700"
+                                             : "bg-green-600 hover:bg-green-700" %>">
+
+                    <%= dayCompleted ? "Day Completed" :
+                        alreadyCheckedIn ? "Check Out" : "Check In" %>
+                </button>
+
+                <span id="timer"
+                      class="text-xs font-semibold text-gray-600
+                      <%= alreadyCheckedIn ? "" : "hidden" %>">
+                </span>
             </div>
 
-            <!-- Name -->
-            <span class="text-sm font-medium text-gray-700 hidden sm:block">
-                <%= empname %>
-            </span>
-
-            <!-- DROPDOWN MENU -->
-            <div id="profileMenu"
-                 class="hidden absolute right-0 top-12 w-56
-                        bg-white rounded-lg shadow-lg border z-50">
-
-                <!-- Header -->
-                <div class="px-4 py-3 border-b">
-                    <p class="text-sm font-semibold text-gray-800">
-                        <%= empname %>
-                    </p>
-                    <p class="text-xs text-gray-500 mb-2">
-                        Teaching Associate
-                    </p>
-
-                    <!-- 🔐 SECURED ACCOUNT BADGE -->
-                    <div class="flex items-center gap-2 bg-green-50
-                                border border-green-600 rounded-md px-2 py-1 w-fit">
-                        <!-- Lock Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             class="h-4 w-4 text-green-600"
-                             fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M12 11c1.657 0 3 1.343 3 3v4H9v-4c0-1.657 1.343-3 3-3z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M8 11V7a4 4 0 118 0v4"/>
-                        </svg>
-
-                        <span class="text-xs font-medium text-green-700">
-                            Secured Account
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <a href="editProfile.jsp"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
-                    ✏️ Edit Profile
-                </a>
-
-                <a href="logout"
-                   class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                    🚪 Logout
-                </a>
+            <!-- PROFILE -->
+            <div class="flex items-center gap-2">
+                <img src="profileImage?id=<%= empid %>"
+                     class="w-10 h-10 rounded-full border-2 border-green-600 object-cover"
+                     onerror="this.src='images/default.png'">
+                <span class="font-medium text-gray-700"><%= empname %></span>
             </div>
+
         </div>
     </div>
 </header>
 
-<!-- ================= MAIN CONTENT ================= -->
+<!-- ================= MAIN ================= -->
 <main class="max-w-7xl mx-auto px-6 py-8">
 
-    <h2 class="text-xl font-semibold text-gray-800 mb-6">
-        Employee Dashboard
+    <h2 class="text-xl font-semibold mb-6">
+        Welcome, <span class="text-green-600"><%= empname %></span>
     </h2>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- ================= ATTENDANCE HISTORY ================= -->
+    <div class="bg-white p-6 rounded-xl shadow">
 
-        <div class="bg-white p-6 rounded-xl shadow">
-            <h3 class="font-semibold text-gray-700 mb-2">Attendance</h3>
-            <p class="text-sm text-gray-500">View your attendance</p>
-        </div>
+        <h3 class="font-semibold mb-4">Attendance History</h3>
 
-        <div class="bg-white p-6 rounded-xl shadow">
-            <h3 class="font-semibold text-gray-700 mb-2">Leave</h3>
-            <p class="text-sm text-gray-500">Apply & track leaves</p>
-        </div>
+        <table class="w-full text-sm border">
+            <tr class="bg-green-50 text-green-700">
+                <th class="border p-2">Date</th>
+                <th class="border p-2">Check In</th>
+                <th class="border p-2">Check Out</th>
+                <th class="border p-2">Seconds</th>
+            </tr>
 
-        <div class="bg-white p-6 rounded-xl shadow">
-            <h3 class="font-semibold text-gray-700 mb-2">Payroll</h3>
-            <p class="text-sm text-gray-500">Salary & payslip info</p>
-        </div>
+            <%
+            try (Connection con = DButil.getConnection()) {
+                PreparedStatement ps =
+                    con.prepareStatement(
+                        "SELECT work_date, check_in, check_out, worked_seconds " +
+                        "FROM attendance WHERE emp_id=? ORDER BY work_date DESC");
+                ps.setString(1, empid);
+                ResultSet rs = ps.executeQuery();
 
-        <div class="bg-white p-6 rounded-xl shadow border-2 border-green-600">
-            <h3 class="font-semibold text-gray-700 mb-2">Profile</h3>
-            <p class="text-sm text-gray-500">Manage your account</p>
-        </div>
+                boolean found = false;
+                while (rs.next()) {
+                    found = true;
+            %>
+            <tr class="text-center">
+                <td class="border p-2"><%= rs.getDate("work_date") %></td>
+                <td class="border p-2"><%= rs.getTimestamp("check_in") %></td>
+                <td class="border p-2"><%= rs.getTimestamp("check_out") %></td>
+                <td class="border p-2"><%= Math.max(0, rs.getLong("worked_seconds")) %></td>
+            </tr>
+            <%
+                }
+                if (!found) {
+            %>
+            <tr>
+                <td colspan="4" class="p-4 text-center text-gray-500">
+                    No attendance records found
+                </td>
+            </tr>
+            <%
+                }
+            }
+            %>
 
+        </table>
     </div>
 
 </main>
 
-<!-- ================= FOOTER ================= -->
-<footer class="bg-white mt-10 py-4 shadow-inner">
-    <p class="text-center text-sm text-gray-400">
-        © 2025 Employee Management System
-    </p>
-</footer>
-
 <!-- ================= JS ================= -->
 <script>
-function toggleMenu() {
-    document.getElementById("profileMenu").classList.toggle("hidden");
+let isCheckedIn = <%= alreadyCheckedIn %>;
+let seconds = <%= elapsedSeconds %>;
+
+if (isCheckedIn) startTimer();
+
+function toggleCheck() {
+    fetch(isCheckedIn ? "checkout" : "checkin", { method: "POST" })
+        .then(() => location.reload());
 }
 
-// Close dropdown on outside click
-document.addEventListener("click", function (event) {
-    const profileArea = event.target.closest(".relative");
-    const menu = document.getElementById("profileMenu");
+function startTimer() {
+    const timer = document.getElementById("timer");
+    timer.classList.remove("hidden");
 
-    if (!profileArea && !menu.classList.contains("hidden")) {
-        menu.classList.add("hidden");
-    }
-});
+    // 🔥 SHOW DB TIME IMMEDIATELY
+    timer.textContent = seconds + " sec";
+
+    setInterval(() => {
+        seconds++;
+        timer.textContent = seconds + " sec";
+    }, 1000);
+}
 </script>
 
 </body>
