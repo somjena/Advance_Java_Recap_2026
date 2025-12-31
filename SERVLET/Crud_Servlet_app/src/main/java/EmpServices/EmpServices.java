@@ -4,16 +4,17 @@ import Emprepo.Emprepository;
 import entity.User;
 import util.DButil;
 
+import java.io.InputStream;
 import java.sql.*;
 
 public class EmpServices implements Emprepository {
     User user = new User();
 
-    private String sql = "insert into emp values (?,?,?,?,?,?,?,?)";
+    private String sql = "insert into emp values (?,?,?,?,?,?,?,?,?)";
 
 
     @Override
-    public boolean register(String id, String name, double salary, String address, int age, String email, String gender, String password) {
+    public boolean register(String id, String name, double salary, String address, int age, String email, String gender, String password , InputStream imageStream) {
         Connection con = DButil.getConnection();
         try {
             PreparedStatement pr = con.prepareStatement(sql);
@@ -25,6 +26,7 @@ public class EmpServices implements Emprepository {
             pr.setString(6, email);
             pr.setString(7, gender);
             pr.setString(8, password);
+            pr.setBlob(9,imageStream);
 
             int rows = pr.executeUpdate();
             if (rows > 0) {
