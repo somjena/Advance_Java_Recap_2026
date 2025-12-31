@@ -2,108 +2,142 @@ package Controller;
 
 import EmpServices.EmpServices;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import util.EmailUtil;
 
 import java.io.IOException;
+import java.io.InputStream;
+
 @WebServlet("/signup")
+@MultipartConfig(maxFileSize = 1024 * 1024 * 5) // 5MB
 public class SignupServlet extends HttpServlet {
+
     private String Domain = "EMPBBS";
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-       String fullname =  req.getParameter("fullname");
-       String email = req.getParameter("email");
-       int age = Integer.parseInt(req.getParameter("age")) ;
-       String gender =  req.getParameter("gender");
-       String address =  req.getParameter("address");
-       Double salary =  Double.parseDouble(req.getParameter("salary"));
-       String password =  req.getParameter("password");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String fullname = req.getParameter("fullname");
+        String email = req.getParameter("email");
+        int age = Integer.parseInt(req.getParameter("age"));
+        String gender = req.getParameter("gender");
+        String address = req.getParameter("address");
+        Double salary = Double.parseDouble(req.getParameter("salary"));
+        String password = req.getParameter("password");
+
+        // 🔥 IMAGE PART
+        Part imagePart = req.getPart("profileImage");
+        InputStream imageStream = imagePart.getInputStream();
+
         EmpServices es = new EmpServices();
-        String id = Domain+es.getUniqueid();
-        if(es.register(id, fullname,salary,address,age,email,gender,password)){
-            String message =
-                    "<!DOCTYPE html>" +
-                            "<html>" +
-                            "<head>" +
-                            "<meta charset='UTF-8'>" +
-                            "<style>" +
-                            "body { margin:0; padding:0; background:#0f172a; font-family: 'Segoe UI', Arial, sans-serif; }" +
-                            ".wrapper { padding: 30px 10px; }" +
-                            ".card { max-width: 600px; margin:auto; background:#020617; border-radius: 12px; " +
-                            "box-shadow: 0 0 25px rgba(34,197,94,0.35); overflow:hidden; }" +
+        String id = Domain + es.getUniqueid();
 
-                            ".header { text-align:center; padding: 25px; background: linear-gradient(135deg,#22c55e,#4ade80); }" +
-                            ".logo { width: 80px; margin-bottom: 10px; }" +
-                            ".header h1 { margin:0; color:#022c22; font-size:24px; letter-spacing:1px; }" +
+        boolean success = es.register(
+                id,
+                fullname,
+                salary,
+                address,
+                age,
+                email,
+                gender,
+                password,
+                imageStream
+        );
+        String message =
+                "<!DOCTYPE html>" +
+                        "<html lang='en'>" +
+                        "<head>" +
+                        "  <meta charset='UTF-8'>" +
+                        "  <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                        "  <title>Welcome to EMS</title>" +
+                        "</head>" +
 
-                            ".content { padding: 30px; color:#e5e7eb; }" +
-                            ".content p { font-size:15px; line-height:1.7; }" +
+                        "<body style='margin:0; padding:0; background:#f0fdf4; font-family:Arial, Helvetica, sans-serif;'>" +
 
-                            ".highlight { color:#4ade80; font-weight:600; }" +
+                        "<table width='100%' cellpadding='0' cellspacing='0'>" +
+                        "  <tr>" +
+                        "    <td align='center' style='padding:30px 10px;'>" +
 
-                            ".info-box { background:#020617; border:1px solid #22c55e; border-radius:10px; padding:15px; margin:20px 0; }" +
-                            ".info-box p { margin:8px 0; font-size:14px; }" +
+                        "      <table width='100%' cellpadding='0' cellspacing='0' style='max-width:600px; background:#ffffff; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.15); overflow:hidden;'>" +
 
-                            ".badge { display:inline-block; padding:6px 14px; background:#22c55e; color:#022c22; " +
-                            "border-radius:20px; font-weight:bold; letter-spacing:1px; }" +
+                        "        <!-- HEADER -->" +
+                        "        <tr>" +
+                        "          <td style='background:linear-gradient(135deg,#16a34a,#4ade80); padding:25px; text-align:center;'>" +
+                        "            <h1 style='margin:0; color:#022c22; font-size:26px;'>Employee Management System</h1>" +
+                        "            <p style='margin:5px 0 0; color:#064e3b; font-size:14px;'>Welcome to EMS Portal</p>" +
+                        "          </td>" +
+                        "        </tr>" +
 
-                            ".btn { display:inline-block; margin-top:25px; padding:14px 26px; " +
-                            "background: linear-gradient(135deg,#22c55e,#16a34a); color:#022c22; " +
-                            "text-decoration:none; font-weight:bold; border-radius:30px; " +
-                            "box-shadow: 0 0 15px rgba(34,197,94,0.8); }" +
+                        "        <!-- CONTENT -->" +
+                        "        <tr>" +
+                        "          <td style='padding:30px; color:#374151;'>" +
 
-                            ".footer { text-align:center; padding:20px; font-size:12px; color:#9ca3af; background:#020617; }" +
-                            "</style>" +
-                            "</head>" +
+                        "            <p style='font-size:15px;'>Dear <strong>" + fullname + "</strong>,</p>" +
 
-                            "<body>" +
-                            "<div class='wrapper'>" +
-                            "<div class='card'>" +
+                        "            <p style='font-size:15px; line-height:1.6;'>" +
+                        "              🎉 Your employee account has been <strong>successfully created</strong> in the EMS portal." +
+                        "            </p>" +
 
-                            "<div class='header'>" +
-                            "<img src='https://cdn.vectorstock.com/i/500p/33/70/modern-ems-logo-design-letter-minimalist-vector-55133370.jpg' class='logo'>" +
-                            "<h1>Employee Management System</h1>" +
-                            "</div>" +
+                        "            <table width='100%' cellpadding='0' cellspacing='0' style='background:#ecfdf5; border:1px solid #22c55e; border-radius:10px; margin:20px 0;'>" +
+                        "              <tr>" +
+                        "                <td style='padding:15px;'>" +
+                        "                  <p style='margin:6px 0; font-size:14px;'><strong>Employee ID:</strong> <span style='color:#166534; font-weight:bold;'>" + id + "</span></p>" +
+                        "                  <p style='margin:6px 0; font-size:14px;'><strong>Name:</strong> " + fullname + "</p>" +
+                        "                  <p style='margin:6px 0; font-size:14px;'><strong>Registered Email:</strong> " + email + "</p>" +
+                        "                </td>" +
+                        "              </tr>" +
+                        "            </table>" +
 
-                            "<div class='content'>" +
-                            "<p>Dear " + fullname + ",</p>" +
+                        "            <p style='font-size:14px; line-height:1.6;'>" +
+                        "              🔐 <strong>Security Notice:</strong><br>" +
+                        "              • Please keep your login credentials confidential.<br>" +
+                        "              • We strongly recommend changing your password after first login.<br>" +
+                        "              • Do not share your account details with anyone." +
+                        "            </p>" +
 
-                            "<p>✨ <strong>Registration Successful!</strong></p>" +
+                        "            <p style='font-size:14px; line-height:1.6;'>" +
+                        "              If you did <strong>not</strong> request this registration, please contact the system administrator immediately." +
+                        "            </p>" +
 
-                            "<p>Welcome to the <span class='highlight'>Employee Management System (EMS)</span>. " +
-                            "Your account has been created successfully.</p>" +
+                        "            <!-- BUTTON -->" +
+                        "            <p style='text-align:center; margin:30px 0;'>" +
+                        "              <a href='http://localhost:8080/EMS/login.html' " +
+                        "                 style='display:inline-block; padding:14px 28px; background:linear-gradient(135deg,#22c55e,#16a34a); color:#022c22; text-decoration:none; font-weight:bold; border-radius:30px;'>" +
+                        "                🚀 Login to EMS" +
+                        "              </a>" +
+                        "            </p>" +
 
-                            "<div class='info-box'>" +
-                            "<p><strong>Employee ID:</strong> <span class='badge'>" + id + "</span></p>" +
-                            "<p><strong>Password:</strong> <span class='badge'>" +password  + "</span></p>" +
-                            "</div>" +
+                        "            <p style='font-size:14px;'>" +
+                        "              Regards,<br>" +
+                        "              <strong>EMS Administration Team</strong>" +
+                        "            </p>" +
 
-                            "<p>Better Recommendation to Reset This Password</p>" +
+                        "          </td>" +
+                        "        </tr>" +
 
-                            "<a href='http://localhost:8080/EMS/login.jsp' class='btn'>🚀 Login to EMS</a>" +
+                        "        <!-- FOOTER -->" +
+                        "        <tr>" +
+                        "          <td style='background:#022c22; padding:15px; text-align:center; color:#9ca3af; font-size:12px;'>" +
+                        "            © 2025 Employee Management System | Secure & Confidential" +
+                        "          </td>" +
+                        "        </tr>" +
 
-                            "<p style='margin-top:30px;'>If this registration wasn’t made by you, " +
-                            "please notify the system administrator immediately.</p>" +
+                        "      </table>" +
 
-                            "<p>Regards,<br><span class='highlight'>EMS Team</span></p>" +
-                            "</div>" +
+                        "    </td>" +
+                        "  </tr>" +
+                        "</table>" +
 
-                            "<div class='footer'>" +
-                            "© 2025 EMS • Powered by Neon Tech" +
-                            "</div>" +
+                        "</body>" +
+                        "</html>";
 
-                            "</div>" +
-                            "</div>" +
-                            "</body>" +
-                            "</html>";
 
-            EmailUtil.sendEmail(email,"Welcome to EMS portal",message);
+        if (success) {
+            EmailUtil.sendEmail(email, "Welcome to EMS portal", message);
             resp.sendRedirect("login.html");
         }
-
     }
 }
